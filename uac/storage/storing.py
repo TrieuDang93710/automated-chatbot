@@ -1,9 +1,9 @@
-import os
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..", "..")))
 import uuid
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
-from pymilvus import MilvusClient
 from uac.configs.config import Config
 from uac.embeddings.embeder import EmbeddingClient
 from uac.storage.schema import DocumentAdmissionSchema
@@ -21,7 +21,7 @@ class Recall:
         self.config = config
         self.embedder = EmbeddingClient(config)
         self.schema = DocumentAdmissionSchema(config)
-        self.client = MilvusClient("/home/quanpv/PycharmProjects/admission_chatbot/milvus.db")
+        self.client
 
     def create_collection(self):
         """
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     # recall = Recall(config)
     embedding_fn = EmbeddingClient(config)
     import pandas as pd
-    df = pd.read_csv('/home/quanpv/PycharmProjects/admission_chatbot/uac/storage/data.csv', encoding='utf-8')
+    df = pd.read_csv(r'D:\DATN\project\automated-chatbot\uac\storage\data.csv', encoding='utf-8')
 
     ids, titles, contents = process_data(df)
     data = []
@@ -109,20 +109,18 @@ if __name__ == "__main__":
     print(titles[0])
     print(len(embeddings))
 
-    # for id, embedding, content in zip(ids, embeddings.tolist(), contents):
-    #     data.append(
-    #         {
-    #             "embedding": embedding
-    # 
-    # ,
-    #             "metadata": {
-    #                 "id": id,
-    #                 "content": content,
-    #             }
-    #         }
-    #     )
+    for id, embedding, content in zip(ids, embeddings.tolist(), contents):
+        data.append(
+            {
+                "embedding": embedding,
+                "metadata": {
+                    "id": id,
+                    "content": content,
+                }
+            }
+        )
     
-    # print(data)
+    print(data)
 
     # recall.create_collection()
     # print(recall.client.list_collections())

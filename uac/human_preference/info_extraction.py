@@ -26,6 +26,8 @@ class InfoExtraction(Base):
         super().__init__(config, mode="extraction")
         self.model_backend = model_id_to_backend(self.client.model_id)
 
+        print('self.model_backend: ', self.model_backend)
+
     async def analyze_the_response(self, system_prompt, queries: str) -> dict:
         """
         Analyzes the user's goal from the given query.
@@ -36,6 +38,7 @@ class InfoExtraction(Base):
         Returns:
             dict: Analyzed user's goal as a dictionary.
         """
+        output_content = {"goal": ""}
         conversations = [
             {
                 "role": "system",
@@ -50,12 +53,17 @@ class InfoExtraction(Base):
         if self.model_backend in ["OLLAMA"]:
             try:
                 res = await self.aclient_response(conversations, format="json")
+                print("res: ==>", res)
                 output_content = json.loads(res["message"]["content"])
             except Exception:
                 output_content = {"goal": ""}
+            
+            # return output_content
         elif self.model_backend in ["GROQ", "OPENAI"]:
+            print("logic ==>")
             try:
                 res = await self.aclient_response(conversations, response_format="json")
+                print("res: ==>", res)
                 left_buckets_index = res.find("{")
                 right_buckets_index = res.rfind("}")
                 parsed_content = res[
@@ -63,6 +71,10 @@ class InfoExtraction(Base):
                 ]
 
                 output_content = json.loads(parsed_content)
-            except Exception:
+            except Exception as e:
+                print("Lỗi parse JSON:", e)
                 output_content = {"goal": ""}
+
+            # return output_content
+        
         return output_content

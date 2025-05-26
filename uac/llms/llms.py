@@ -23,6 +23,7 @@ all_models = {
         ("LLAMA3 70B", "llama3-70b-8192"),
         ("LLAMA3.1 70B", "llama-3.1-70b-versatile"),
         ("LLAMA3.1 8B", "llama-3.1-8b-instant"),
+        ("llama3-70b-8192", "llama3-70b-8192llama3-70b-8192"),
         ("LLAMA3.3 70B", "llama-3.3-70b-specdec"),
         ("LLAMA2 70B", "llama2-70b-4096"),
         ("Mixtral", "mixtral-8x7b-32768"),

@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "..", "..")))
 from pymilvus import CollectionSchema, DataType, FieldSchema
 from uac.configs.config import Config
 

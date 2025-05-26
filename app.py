@@ -31,11 +31,16 @@ config = Config()
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 embedding_fn = EmbeddingClient(config, device=device)
+print("embedding_fn: ", embedding_fn)
 
 info_extractor = InfoExtraction(config)
+print("info_extractor: ", info_extractor)
 user_info_management = UserInfoManagement(config=config)
+print("user_info_management: ", user_info_management)
+
 
 def setup_runnable():
+    print(cl.user_session)
     phone_number = cl.user_session.get("phone_number")
     user_name = cl.user_session.get("user_name")
     email = cl.user_session.get("email")
@@ -46,6 +51,7 @@ def setup_runnable():
     user_info = user_info_management.find_one(
         query={"phone_number": phone_number}, output_field=None
     )
+    print("user_info[user_id]: ", user_info["user_id"])
 
     if user_info is None:
         user_info_management.insert_one(
@@ -80,17 +86,17 @@ def setup_runnable():
         f"Login account: Name: {user_name}, Phone number: {phone_number}, Email: {email}"
     )
 
-    runnable = EndToEndRouter(
-        config=config, embedding_fn=embedding_fn, rerank_model=None, user_id=user_id
+    runnable: EndToEndRouter = EndToEndRouter(
+        config=config, embedding_fn=embedding_fn, rerank_model=None, user_id=user_info["user_id"]
     )
     cl.user_session.set("runnable", runnable)
-
+    print("cl.user_session: ", cl.user_session)
 
 # Khởi tạo phiên chat với yêu cầu nhập số điện thoại
 @cl.on_chat_start
 async def on_chat_start():
     res = cl.Message(
-        content="Xin chào! Mình là UDAchat, Chatbot hỗ trợ tư vấn tuyển sinh của Trường Đại học Đông Á.\n\nĐể thuận tiện cho việc tư vấn, bạn vui lòng nhập tên, số điện thoại và email của bạn để bắt đầu cuộc trò chuyện nhé."
+        content="Xin chào! Mình là JobAI, Chatbot hỗ trợ tư vấn tìm kiếm việc làm.\n\nĐể thuận tiện cho việc tư vấn, bạn vui lòng nhập tên, số điện thoại và email của bạn để bắt đầu cuộc trò chuyện nhé."
     )
     await res.send()
 
@@ -100,7 +106,6 @@ async def on_chat_start():
     cl.user_session.set("summary_memory", list())
     cl.user_session.set("thread", {"id": cl.user_session.get("id")})
 
-
 # Xử lý từng tin nhắn
 @cl.on_message
 async def on_message(message: cl.Message):
@@ -108,19 +113,23 @@ async def on_message(message: cl.Message):
     summary_memory = cl.user_session.get("summary_memory", -1)
     runnable: EndToEndRouter = cl.user_session.get("runnable")
     awaiting_phone_number = cl.user_session.get("awaiting_info", False)
+    print("runnable: ==>", runnable)
+
+    print('awaiting_phone_number: ', awaiting_phone_number)
     # Kiểm tra nếu đang chờ người dùng nhập số điện thoại
     if awaiting_phone_number:
         info = await info_extractor.analyze_the_response(
             USER_INFO_EXTRACTOR_SYSTEM, message.content
         )
-        print(info)
+        print("infor: ",info)
+        print("message.content: ",message.content)
         if (
-            info.get("phone_number", "") == ""
-            and info.get("user_name", "") == ""
-            and info.get("email", "") == ""
+            (not info or info.get("phone_number", "")) == ""
+            and (not info or info.get("user_name", "")) == ""
+            and (not info or info.get("email", "")) == ""
         ):
             res = cl.Message(
-                content="Xin chào! Mình là UDAchat, Chatbot hỗ trợ tư vấn tuyển sinh của Trường Đại học Đông Á.\n\nĐể thuận tiện cho việc tư vấn, bạn vui lòng nhập tên, số điện thoại và email của bạn để bắt đầu cuộc trò chuyện nhé."
+                content="Xin chào! Mình là AgentChatbot, Chatbot hỗ trợ tư vấn hỗ trợ tìm kiếm việc làm của hệ thống.\n\nĐể thuận tiện cho việc tư vấn, bạn vui lòng nhập tên, số điện thoại và email của bạn để bắt đầu cuộc trò chuyện nhé."
             )
             await res.send()
             return
@@ -205,6 +214,8 @@ async def on_message(message: cl.Message):
         if queue_manager.count_tokens(summary_memory) > MEMORY_BUFFER_LIMIT:
             summary_memory = await queue_manager.reset_buffer(summary_memory)
 
+        if runnable is None:
+            print("Không thể tạo được runnable")
 
         response = await runnable.run(message.content, summary_memory)
 

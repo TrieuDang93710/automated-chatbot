@@ -32,8 +32,8 @@ class RecallStorage:
         """
         self.embed_model = embed_model
         self.milvus_config = milvus_config or {
-            "host": os.environ.get("MILVUS_HOST"),
-            "port": os.environ.get("MILVUS_PORT"),
+            "host": os.environ["MILVUS_HOST"],
+            "port": os.environ["MILVUS_PORT"],
             "db_name": config.db_name,
             "collection_name": config.collection_name,
             "vector_field_name": config.vector_field_name,
@@ -41,14 +41,19 @@ class RecallStorage:
             "vector_dim": config.vector_dim,
             "cosine_retrieval_threshold": config.cosine_retrieval_threshold,
         }
+        print("self.milvus_config: ",self.milvus_config)
+        if self.milvus_config["host"] is None or self.milvus_config["port"] is None:
+            raise ValueError("Milvus host hoặc port chưa được thiết lập trong biến môi trường.")
 
         self.milvus_connection = connections.connect(
             db_name=self.milvus_config["db_name"],
             host=self.milvus_config["host"],
-            port=self.milvus_config["port"],
+            port=int(self.milvus_config["port"]),
         )
         # Create Milvus collection if it doesn't exist
         self.milvus_collection = self.create_milvus_collection(self.milvus_config, schema=schema)
+
+        print("self.milvus_collection: ",self.milvus_collection)
 
         self.mongo_config = mongo_config or {
             "mongo_url": os.environ.get("MONGO_URL"),

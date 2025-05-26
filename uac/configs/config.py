@@ -1,9 +1,9 @@
 class Config:
     def __init__(self):
-        self.generate_model_name = "llama-3.3-70b-specdec"
-        self.function_calling_model_name = "llama-3.3-70b-specdec"
-        self.extraction_model_name = "llama-3.3-70b-specdec"
-        self.preprocess_model_name = "llama-3.3-70b-specdec"
+        self.generate_model_name = "llama3.2:latest"
+        self.function_calling_model_name = "llama3.2:latest"
+        self.extraction_model_name = "llama3-70b-8192"
+        self.preprocess_model_name = "llama3.2:latest"
         self.embedding_model_name = "nomic-embed-text:v1.5"
         self.storage_directory_path = "storage"
         self.collection_name = "knowledge_base"
@@ -20,5 +20,5 @@ class Config:
         self.topk = 3
         self.availabel_data_dir = "data/raw/"
         self.embedding_model_cache_dir = "/HDD/models/ai-tutor/"
-        self.bot_name = "ADUchat, Chatbot hỗ trợ tư vấn tuyến sinh của Đại học Đông Á"
+        self.bot_name = "ADUchat, Chatbot hỗ trợ tư vấn tìm kiếm việc làm"
         self.bot_type = "uac"

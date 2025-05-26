@@ -23,6 +23,7 @@ class MessageBufferManager(Base):
         self.tokenizer = AutoTokenizer.from_pretrained(
             os.environ["TOKENIZER_PATH"], TOKENIZERS_PARALLELISM=True
         )
+        self.tokenizer.chat_template = "<|start|>{messages}<|end|>"
 
     @staticmethod
     def escape_braces(message_history: List[Dict[str, str]]) -> List[Dict[str, str]]:
@@ -71,7 +72,7 @@ class MessageBufferManager(Base):
         if not conversation:
             return 0
         tokenized = self.tokenizer.apply_chat_template(
-            conversation, tokenize=True, add_generation_prompt=True
+            conversation, tokenize=True, add_generation_prompt=True, chat_template="<|start|>{messages}<|end|>"
         )
         return len(tokenized)
 

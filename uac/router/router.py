@@ -59,7 +59,9 @@ class RouterPipeline:
 
         # Get the agent and generate a response
         manager_agent = self.agent_builder.get_agent("ManagerAgent")
+        print("manager_agent: ", manager_agent)
         content, arguments = await manager_agent.run_agent(user_input, history_chat)
+        print("content,\n arguments: ", content, arguments)
 
         logger.success(f"Function call: {content} | Arguments: {arguments}")
         return RouterResult(content, content_extraction, arguments)
@@ -177,6 +179,7 @@ class EndToEndRouter:
         """
         # Call the RouterPipeline's run method to get routing information
         router_result = await self.router_pipeline.run(user_input, history_chat)
+        print("router_result: ", router_result)
 
         # Route the request to the appropriate agent based on router content
         tool_content = await self.route(
@@ -186,5 +189,6 @@ class EndToEndRouter:
             retrieval_context=router_result.content_extraction,
             arguments=router_result.arguments,
         )
+        print("tool_content: ", tool_content)
 
         return tool_content

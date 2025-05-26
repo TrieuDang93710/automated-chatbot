@@ -128,8 +128,8 @@ class Retrieval:
         logger.info(f"Contextualized query: {contextualized_query}")
 
         # rewrite query
-        # queries = self._rewrite_query(contextualized_query)
-        # logger.info(f"Rewritten queries: {queries}")
+        queries = self._rewrite_query(contextualized_query)
+        logger.info(f"Rewritten queries: {queries}")
 
         # search
         if isinstance(contextualized_query, str):

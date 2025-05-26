@@ -43,9 +43,12 @@ class OllamaClient:
             >>> client = OllamaClient(config)
         """
         OLLAMA_API_URL = os.environ["OLLAMA_BASE_URL"]
+        print("OLLAMA_API_URL: ", OLLAMA_API_URL)
         self.aclient = AsyncClient(host=OLLAMA_API_URL)
         self.client = Client(host=OLLAMA_API_URL)
-        self.models = [(model["name"], model["model"]) for model in self.client.list()["models"]]
+        print("self.client: ", self.client.list())
+        self.models = [(model["model"], model["model"]) for model in self.client.list()["models"]]
+        print("self.models ", self.models)
         self.embedding_model_name = config.embedding_model_name
 
     async def aclient_response(
